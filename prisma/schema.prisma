@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String
+  role        Role     @default(USER)
+  totpEnabled Boolean  @default(false)
+  totpSecret  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Link {
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  url        String
+  title      String
+  clickCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  clicks     Click[]
+}
+
+model Click {
+  id        String   @id @default(cuid())
+  linkId    String
+  ip        String
+  userAgent String
+  referer   String?
+  timestamp DateTime @default(now())
+  link      Link     @relation(fields: [linkId], references: [id])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
